@@ -1,0 +1,57 @@
+{
+  "name": "@vlsergey/react-indexdb-repo",
+  "version": "0.0.1",
+  "description": "React Components to work with IndexDB repositories",
+  "main": "src/index.js",
+  "scripts": {
+    "flow:check": "flow check",
+    "flow:status": "flow status",
+    "eslint:check": "eslint --ignore-pattern \"!.eslintrc.js\" .eslintrc.js karma.conf.js src/**/*.js test/**/*.js",
+    "eslint:fix": "eslint --ignore-pattern \"!.eslintrc.js\" --fix .eslintrc.js karma.conf.js src/**/*.js test/**/*.js",
+    "test": "cross-env NODE_ENV=development cross-env BROWSERSLIST=\"current node\" karma start karma.conf.js --single-run",
+    "test:watch": "cross-env NODE_ENV=development cross-env BROWSERSLIST=\"current node\" karma start karma.conf.js --no-single-run",
+    "test:watch:chrome": "cross-env NODE_ENV=development cross-env BROWSERSLIST=\"last 2 Chrome versions\" karma start karma.conf.js --no-single-run --browsers Chrome",
+    "preversion": "npm run eslint:fix && npm run flow:check",
+    "version": "",
+    "postversion": "git push && git push --tags"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vlsergey/react-indexdb-repo.git"
+  },
+  "keywords": [
+    "react",
+    "indexdb",
+    "vlsergey"
+  ],
+  "author": "Sergey Vladimirov <vlsergey@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/vlsergey/react-indexdb-repo/issues"
+  },
+  "homepage": "https://github.com/vlsergey/react-indexdb-repo#readme",
+  "devDependencies": {
+    "@vlsergey/babel-config": "^0.1.0",
+    "@vlsergey/eslint-config": "^0.1.0",
+    "babel-loader": "^8.0.6",
+    "core-js": "^3.3.3",
+    "cross-env": "^6.0.3",
+    "fake-indexeddb": "^2.1.1",
+    "jsdom": "^15.2.0",
+    "karma": "^4.4.1",
+    "karma-chrome-launcher": "^3.1.0",
+    "karma-jsdom-launcher": "^8.0.0",
+    "karma-mocha": "^1.3.0",
+    "karma-mocha-reporter": "^2.2.5",
+    "karma-sourcemap-loader": "^0.3.7",
+    "karma-webpack": "^4.0.2",
+    "mocha": "^6.2.2",
+    "prop-types": "^15.7.0",
+    "react": "^16.11.0",
+    "regenerator-runtime": "^0.13.3",
+    "webpack": "^4.41.2"
+  },
+  "dependencies": {
+    "@vlsergey/react-promise": "^1.0.0"
+  }
+}

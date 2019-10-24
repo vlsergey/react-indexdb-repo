@@ -1,0 +1,10 @@
+[ignore]
+.*node_modules/.*
+.*test/.*
+.*\.config\.js
+.*\.conf\.js
+.*\.json
+
+[lints]
+untyped-import=off
+unclear-type=off
