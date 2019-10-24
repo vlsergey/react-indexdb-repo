@@ -1,6 +1,6 @@
 {
   "name": "@vlsergey/react-indexdb-repo",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "React Components to work with IndexDB repositories",
   "main": "src/index.js",
   "scripts": {
