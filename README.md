@@ -1,5 +1,8 @@
 # @vlsergey/react-indexdb-repo
+
 React Components to work with IndexDB repositories.
+
+[![Build Status](https://travis-ci.org/vlsergey/react-indexdb-repo.svg?branch=master)](https://travis-ci.org/vlsergey/react-indexdb-repo)
 
 # Main classes
 `IndexDbRepository` -- wrapper around IDBObjectStore. Supports:
