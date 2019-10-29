@@ -6,6 +6,7 @@ type KeyType = number | string;
 type ExtValueType = any;
 type DbValueType = any;
 type Listener = number => any;
+type PredicateType = ExtValueType => boolean;
 
 // Оборачиваем функции от ObjectStore, поддерживающие интерфейс IDBRequest
 // в вызов с использованием Promise
@@ -122,6 +123,31 @@ export default class IndexedDbRepository {
     } ) );
   }
 
+  findByPredicate( predicate : PredicateType ) : Promise< ExtValueType[] > {
+    return this._tx( 'readonly', async objectStore => new Promise( ( resolve, reject ) => {
+      const result : ExtValueType[] = [];
+      const request : IDBRequest = objectStore.openCursor();
+      request.onsuccess = event => {
+        try {
+          const cursor : ? IDBCursorWithValue = event.target.result;
+          if ( cursor ) {
+            const dbItem : DbValueType = cursor.value;
+            const extItem : ExtValueType = this.transformAfterIndexDb( dbItem );
+            if ( predicate( extItem ) ) {
+              result.push( extItem );
+            }
+            cursor.continue();
+          } else {
+            resolve( result );
+          }
+        } catch ( error ) {
+          reject( error );
+        }
+      };
+      request.onerror = reject;
+    } ) );
+  }
+
   deleteById( key : KeyType ) : Promise< any > {
     return this._tx( 'readwrite', objectStore => deletePromise( objectStore, key ) );
   }
@@ -129,7 +155,7 @@ export default class IndexedDbRepository {
   /**
    * @return Keys of removed elements
    */
-  async retain( idsToPreserve : Iterable< KeyType > ) : Promise< KeyType[] > {
+  async retain( idsToPreserve : ( KeyType[] | Set< KeyType > ) ) : Promise< KeyType[] > {
     return this._tx( 'readwrite', objectStore => new Promise( ( resolve, reject ) => {
       const setToPreserve : Set< KeyType > = new Set( idsToPreserve );
       const result : KeyType[] = [];

@@ -107,6 +107,30 @@ describe( 'IndexedDbRepository', () => {
 
   } );
 
+  describe( 'findByPredicate', () => {
+    it( 'Returns all elements with "always true" predicate', async() => {
+      const repo : IndexedDbRepository = await buildTestRepo();
+
+      const actual : number[] = ( await repo.findByPredicate( () => true ) )
+        .map( ( { id } ) => id );
+      assert.deepEqual( actual, [ 1, 2, 3 ] );
+    } );
+    it( 'Returns correct elements with predicate', async() => {
+      const repo : IndexedDbRepository = await buildTestRepo();
+
+      const actual : number[] = ( await repo.findByPredicate( ( { name } ) => name.length === 5 ) )
+        .map( ( { id } ) => id );
+      assert.deepEqual( actual, [ 1, 3 ] );
+    } );
+    it( 'Returns none elements with "always false" predicate', async() => {
+      const repo : IndexedDbRepository = await buildTestRepo();
+
+      const actual : number[] = ( await repo.findByPredicate( () => false ) )
+        .map( ( { id } ) => id );
+      assert.deepEqual( actual, [ ] );
+    } );
+  } );
+
   describe( 'retain', () => {
     it( 'Correctly cleanup repository with Set argument', async() => {
       const repo : IndexedDbRepository = await buildTestRepo();
