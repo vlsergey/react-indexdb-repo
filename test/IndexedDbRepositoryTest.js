@@ -17,7 +17,11 @@ async function testDbConnection( ) {
       try {
         const db = event.target.result;
         try { db.deleteObjectStore( OBJECT_STORE_NAME ); } catch ( err ) { /* NOOP */ }
-        db.createObjectStore( OBJECT_STORE_NAME, { keyPath: 'id' } );
+        const objectStore = db.createObjectStore( OBJECT_STORE_NAME, { keyPath: 'id' } );
+        objectStore.createIndex( 'name_index', 'name', {
+          multiEntry: true,
+          locale: 'auto', // Firefox-only (43+)
+        } );
       } catch ( err ) {
         reject( err );
       }
@@ -128,6 +132,15 @@ describe( 'IndexedDbRepository', () => {
       const actual : number[] = ( await repo.findByPredicate( () => false ) )
         .map( ( { id } ) => id );
       assert.deepEqual( actual, [ ] );
+    } );
+  } );
+
+  describe( 'getKeyToIndexValueMap', () => {
+    it( 'Returns correct map for existing index', async() => {
+      const repo : IndexedDbRepository = await buildTestRepo();
+      const result = await repo.getKeyToIndexValueMap( 'name_index' );
+
+      assert.deepEqual( [ ...result.entries() ], [ [ 1, 'First' ], [ 2, 'Second' ], [ 3, 'Third' ] ] );
     } );
   } );
 

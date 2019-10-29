@@ -8,6 +8,25 @@ type DbValueType = any;
 type Listener = number => any;
 type PredicateType = ExtValueType => boolean;
 
+function withCursor( request : IDBRequest, callback : IDBCursorWithValue => any ) : Promise< void > {
+  return new Promise( ( resolve, reject ) => {
+    request.onsuccess = event => {
+      try {
+        const cursor : ? IDBCursorWithValue = event.target.result;
+        if ( cursor ) {
+          callback( cursor );
+          cursor.continue();
+        } else {
+          resolve();
+        }
+      } catch ( error ) {
+        reject( error );
+      }
+    };
+    request.onerror = reject;
+  } );
+}
+
 // Оборачиваем функции от ObjectStore, поддерживающие интерфейс IDBRequest
 // в вызов с использованием Promise
 function wrap( methodName : string ) : any {
@@ -124,64 +143,62 @@ export default class IndexedDbRepository {
   }
 
   findByPredicate( predicate : PredicateType ) : Promise< ExtValueType[] > {
-    return this._tx( 'readonly', async objectStore => new Promise( ( resolve, reject ) => {
+    return this._tx( 'readonly', async objectStore => {
       const result : ExtValueType[] = [];
       const request : IDBRequest = objectStore.openCursor();
-      request.onsuccess = event => {
-        try {
-          const cursor : ? IDBCursorWithValue = event.target.result;
-          if ( cursor ) {
-            const dbItem : DbValueType = cursor.value;
-            const extItem : ExtValueType = this.transformAfterIndexDb( dbItem );
-            if ( predicate( extItem ) ) {
-              result.push( extItem );
-            }
-            cursor.continue();
-          } else {
-            resolve( result );
-          }
-        } catch ( error ) {
-          reject( error );
+      await withCursor( request, cursor => {
+        const dbItem : DbValueType = cursor.value;
+        const extItem : ExtValueType = this.transformAfterIndexDb( dbItem );
+        if ( predicate( extItem ) ) {
+          result.push( extItem );
         }
-      };
-      request.onerror = reject;
-    } ) );
+      } );
+      return result;
+    } );
   }
 
   deleteById( key : KeyType ) : Promise< any > {
     return this._tx( 'readwrite', objectStore => deletePromise( objectStore, key ) );
   }
 
+  getKeyToIndexValueMap( indexName : string ) : Promise< Map< KeyType, any > > {
+    return this._tx( 'readwrite', async objectStore => {
+      const index : IDBIndex = objectStore.index( indexName );
+      const request : IDBRequest = index.openCursor();
+
+      const result : Map< KeyType, any > = new Map();
+      await withCursor( request, cursor => {
+        const primaryKey : KeyType = cursor.primaryKey;
+        const indexValue : any = cursor.key;
+        result.set( primaryKey, indexValue );
+      } );
+
+      return result;
+    } );
+  }
+
   /**
    * @return Keys of removed elements
    */
   async retain( idsToPreserve : ( KeyType[] | Set< KeyType > ) ) : Promise< KeyType[] > {
-    return this._tx( 'readwrite', objectStore => new Promise( ( resolve, reject ) => {
-      const setToPreserve : Set< KeyType > = new Set( idsToPreserve );
-      const result : KeyType[] = [];
-      const request = objectStore.openCursor();
-      request.onsuccess = event => {
-        try {
-          const cursor = event.target.result;
-          if ( cursor ) {
-            const item = cursor.value;
-            const id = item[ this.keyPath ];
-            if ( !setToPreserve.has( id ) ) {
-              result.push( id );
-              cursor.delete();
-            }
-            cursor.continue();
-          } else {
-            this.onChange();
-            resolve( result );
+    const setToPreserve : Set< KeyType > = new Set( idsToPreserve );
+    return this._tx( 'readwrite', async objectStore => {
+      const request : IDBRequest = objectStore.openCursor();
+      try {
+        const result : KeyType[] = [];
+        await withCursor( request, cursor => {
+          const item = cursor.value;
+          const id = item[ this.keyPath ];
+          if ( !setToPreserve.has( id ) ) {
+            result.push( id );
+            cursor.delete();
           }
-        } catch ( error ) {
-          this.onChange();
-          reject( error );
-        }
-      };
-      request.onerror = reject;
-    } ) );
+        } );
+        return result;
+      } finally {
+        this.onChange();
+      }
+    } );
   }
 
   save( item : ExtValueType ) : Promise< any > {

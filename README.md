@@ -4,12 +4,44 @@ React Components to work with IndexDB repositories.
 
 [![Build Status](https://travis-ci.org/vlsergey/react-indexdb-repo.svg?branch=master)](https://travis-ci.org/vlsergey/react-indexdb-repo)
 
+# Usage example
+```javascript
+async function dbConnection( ) {
+  return new Promise( ( resolve, reject ) => {
+    const dbOpenRequest = window.indexedDB.open( 'TestDatabase', 1 );
+
+    dbOpenRequest.onblocked = () => reject( 'onblocked' );
+    dbOpenRequest.onerror = err => reject( err );
+    dbOpenRequest.onsuccess = () => resolve( dbOpenRequest.result );
+    dbOpenRequest.onupgradeneeded = event => {
+      try {
+        const db = event.target.result;
+        try { db.deleteObjectStore( 'TestObjectStore' ); } catch ( err ) { /* NOOP */ }
+        db.createObjectStore( 'TestObjectStore', { keyPath: 'id' } );
+      } catch ( err ) {
+        reject( err );
+      }
+    };
+  } );
+}
+
+const db = await testDbConnection( );
+const repo = new IndexedDbRepository( db, 'TestObjectStore', 'id' );
+await repo.saveAll( [
+  { id: 1, name: 'First' },
+  { id: 2, name: 'Second' },
+  { id: 3, name: 'Third' },
+] );
+console.log( ( await repo.findById( 1 ) ).name );
+```
+
 # Main classes
 `IndexDbRepository` -- wrapper around IDBObjectStore. Supports:
 * `findAll()` -- returns all elements from IDBObjectStore
 * `findById( id )` -- returns element by key from IDBObjectStore.
 * `findByIds( ids )` -- returns an array of elements by keys from IDBObjectStore.
 * `findByPredicate( predicate )` -- returns an array of elements filtered by predicate. Semantically the same as, but with memory usage optimization compared to `findAll( ).filter( predicate )`.
+* `getKeyToIndexValueMap( indexName )` -- returns a map where key is primary key and value is index value. Used by sorting functions (where one need to sort items by label of linked dictionary entry).
 * `retain( ids )` -- deletes all elements from IDBObjectStore except with keys specified in argument.
 
 All `findId()` and `findIds()` calls are placed into single queue and optimized by using cursor over sorted ids.
