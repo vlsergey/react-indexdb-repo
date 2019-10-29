@@ -9,6 +9,7 @@ React Components to work with IndexDB repositories.
 * `findAll()` -- returns all elements from IDBObjectStore
 * `findById( id )` -- returns element by key from IDBObjectStore.
 * `findByIds( ids )` -- returns an array of elements by keys from IDBObjectStore.
+* `retain( ids )` -- deletes all elements from IDBObjectStore except with keys specified in argument.
 
 All `findId()` and `findIds()` calls are placed into single queue and optimized by using cursor over sorted ids.
 

@@ -107,4 +107,43 @@ describe( 'IndexedDbRepository', () => {
 
   } );
 
+  describe( 'retain', () => {
+    it( 'Correctly cleanup repository with Set argument', async() => {
+      const repo : IndexedDbRepository = await buildTestRepo();
+
+      const deleted = await repo.retain( new Set( [ 3, 1 ] ) );
+      const preserved : number[] = ( await repo.findAll( ) ).map( ( { id } ) => id );
+
+      assert.deepEqual( deleted, [ 2 ] );
+      assert.deepEqual( preserved, [ 1, 3 ] );
+    } );
+    it( 'Correctly cleanup repository with Array argument', async() => {
+      const repo : IndexedDbRepository = await buildTestRepo();
+
+      const deleted = await repo.retain( [ 3, 1 ] );
+      const preserved : number[] = ( await repo.findAll( ) ).map( ( { id } ) => id );
+
+      assert.deepEqual( deleted, [ 2 ] );
+      assert.deepEqual( preserved, [ 1, 3 ] );
+    } );
+    it( 'Deletes all elements on empty input', async() => {
+      const repo : IndexedDbRepository = await buildTestRepo();
+
+      const deleted = await repo.retain( [] );
+      const preserved : number[] = ( await repo.findAll( ) ).map( ( { id } ) => id );
+
+      assert.deepEqual( deleted, [ 1, 2, 3 ] );
+      assert.deepEqual( preserved, [ ] );
+    } );
+    it( 'Deletes all elements on input with incorrect keys', async() => {
+      const repo : IndexedDbRepository = await buildTestRepo();
+
+      const deleted = await repo.retain( [ 4, 5, 6 ] );
+      const preserved : number[] = ( await repo.findAll( ) ).map( ( { id } ) => id );
+
+      assert.deepEqual( deleted, [ 1, 2, 3 ] );
+      assert.deepEqual( preserved, [ ] );
+    } );
+  } );
+
 } );

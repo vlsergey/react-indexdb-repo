@@ -126,6 +126,38 @@ export default class IndexedDbRepository {
     return this._tx( 'readwrite', objectStore => deletePromise( objectStore, key ) );
   }
 
+  /**
+   * @return Keys of removed elements
+   */
+  async retain( idsToPreserve : Iterable< KeyType > ) : Promise< KeyType[] > {
+    return this._tx( 'readwrite', objectStore => new Promise( ( resolve, reject ) => {
+      const setToPreserve : Set< KeyType > = new Set( idsToPreserve );
+      const result : KeyType[] = [];
+      const request = objectStore.openCursor();
+      request.onsuccess = event => {
+        try {
+          const cursor = event.target.result;
+          if ( cursor ) {
+            const item = cursor.value;
+            const id = item[ this.keyPath ];
+            if ( !setToPreserve.has( id ) ) {
+              result.push( id );
+              cursor.delete();
+            }
+            cursor.continue();
+          } else {
+            this.onChange();
+            resolve( result );
+          }
+        } catch ( error ) {
+          this.onChange();
+          reject( error );
+        }
+      };
+      request.onerror = reject;
+    } ) );
+  }
+
   save( item : ExtValueType ) : Promise< any > {
     return this._tx( 'readwrite', objectStore => putPromise( objectStore, item ) );
   }
