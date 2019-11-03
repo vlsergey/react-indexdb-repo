@@ -66,7 +66,7 @@ const mapRepoToActions = ( repo, { id } ) => ( {
 
 const TestComponentConnected = connect( mapPropsToRepo )( mapRepoToProps, mapRepoToActions )( TestComponent );
 
-describe( 'RepositoryListener', () => {
+describe( 'connect()', () => {
 
   let repo : IndexedDbRepository;
   beforeEach( async() => {
