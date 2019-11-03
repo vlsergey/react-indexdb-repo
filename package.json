@@ -12,7 +12,7 @@
     "test:watch": "cross-env NODE_ENV=development cross-env BROWSERSLIST=\"current node\" karma start karma.conf.js --no-single-run",
     "test:watch:chrome": "cross-env NODE_ENV=development cross-env BROWSERSLIST=\"last 2 Chrome versions\" karma start karma.conf.js --no-single-run --browsers Chrome",
     "preversion": "npm run eslint:fix && npm run flow:check && npm run test",
-    "version": "",
+    "version": "npm publish --access=public",
     "postversion": "git push && git push --tags"
   },
   "repository": {
