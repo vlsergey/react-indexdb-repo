@@ -4,7 +4,7 @@ type KeyType = number | string;
 type ValueType = any;
 
 type BatchFunctionType = KeyType[] => Promise< ( ?ValueType )[] >;
-type QueueItem = { key : KeyType, reject : any, resolve : KeyType => any };
+type QueueItem = { key : KeyType, reject : any, resolve : ?ValueType => any };
 
 /**
  * Uses single queue to fetch all items by key from repository.
