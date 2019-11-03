@@ -42,8 +42,6 @@ module.exports = function( config ) {
         rules: [
           {
             test: /\.js$/,
-            include: /(src|test)/,
-            exclude: /node_modules/,
             loader: 'babel-loader',
             options: {
               cacheDirectory: true,

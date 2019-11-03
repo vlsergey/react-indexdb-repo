@@ -6,6 +6,8 @@ module.exports = {
   },
   globals: {
     // for test:
+    afterEach: true,
+    beforeEach: true,
     describe: true,
     it: true,
   },

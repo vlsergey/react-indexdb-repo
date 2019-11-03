@@ -39,7 +39,8 @@ console.log( ( await repo.findById( 1 ) ).name );
 
 # Main classes
 
-## 'IndexDbRepository` -- wrapper around IDBObjectStore.
+## IndexDbRepository
+`IndexDbRepository` -- wrapper around IDBObjectStore.
 Supports:
 * `findAll()` -- returns all elements from IDBObjectStore
 * `findById( id )` -- returns element by key from IDBObjectStore.
@@ -50,10 +51,45 @@ Supports:
 
 All `findId()` and `findIds()` calls are placed into single queue and optimized by using cursor over sorted ids.
 
-## Properties and settings
+### Properties and settings
 * `stamp` -- indicates the sequence number of changes in IDBObjectStore. Can be used for memoization cache cleanup (I.e. pass it to memoize function as argument of memoization to reread data from IDBObjectStore on changes).
 * `transformAfterIndexDb` -- method will be called after retrivieing element from IDBObjectStore and before returning it to user code. It's a good place for custom deserialization (`Date` handling, for example).
 * `transformBeforeIndexDb` -- method will be called before placing element in IDBObjectStore.  It\`s a good place for custom `object` => `string` serialization.
+
+## connect()
+`connect` -- connects data from `IndexDbRepository` with component props. Automatically updates component props whenever `IndexDbRepository` is updated.
+
+Usage:
+```javascript
+import React, { PureComponent } from 'react';
+import connect from '@vlsergey/react-indexdb-repo';
+
+type PropsType = {
+  element: any,
+}
+
+class ElementName extends PureComponent<PropsType> {
+  render() {
+    const { element } = this.props;
+    return !!element
+      ? <div>Loading...</div>
+      : <div>{element.name}</div>;
+  }
+}
+
+const mapPropsToRepo = ( props ) => /* some way to obtain IndexDbRepository */
+const mapRepoToProps = ( repo, props ) => ({
+  element: repo.findById( props.elementId ),
+})
+const mapRepoToActions = (repo, props) => ({
+  // can map repository to actions
+});
+
+export default connect( mapPropsToRepo )( mapRepoToProps, mapRepoToActions )( ElementName );
+```
+* `mapPropsToRepo` -- need to obtain `IndexDbRepository` from component `props`.
+* `mapRepoToProps` -- build data calculation `Promise`'s from given `IndexDbRepository` and component `props`. Promises calculation results will be passes to wrapped component `props`.
+* `mapRepoToActions` -- build actions using `IndexDbRepository` and component `props`. Will be passes to wrapped component `props` directly.
 
 # Misc Classes
 

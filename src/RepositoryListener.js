@@ -1,3 +1,5 @@
+// @flow
+
 import IndexedDbRepository from './IndexedDbRepository';
 import { PureComponent } from 'react';
 
@@ -35,7 +37,7 @@ export default class RepositoryListener
   subscribe() {
     const { repository } = this.props;
     if ( repository instanceof IndexedDbRepository && this.prevRepository !== repository ) {
-      if ( this.prevRepository !== null ) {
+      if ( this.prevRepository ) {
         this.prevRepository.removeListener( this.repositoryListener );
       }
       this.prevRepository = repository;
@@ -44,7 +46,7 @@ export default class RepositoryListener
   }
 
   unsubscribe( ) {
-    if ( this.prevRepository !== null ) {
+    if ( this.prevRepository ) {
       this.prevRepository.removeListener( this.repositoryListener );
       this.prevRepository = null;
     }

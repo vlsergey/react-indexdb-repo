@@ -1,4 +1,9 @@
-export default async function openIDBDatabase( databaseName : string, onUpgradeNeeded : ( IDBDatabase => any ) ) : Promise< IDBDatabase > {
+// @flow
+
+export default async function openDatabase(
+    databaseName : string,
+    onUpgradeNeeded : ( IDBDatabase => any )
+) : Promise< IDBDatabase > {
   return new Promise( ( resolve, reject ) => {
     const dbOpenRequest = window.indexedDB.open( databaseName, 1 );
 

@@ -83,6 +83,10 @@ export default class IndexedDbRepository {
     }
   }
 
+  close() : void {
+    return this.database.close();
+  }
+
   findAll() : Promise< ExtValueType[] > {
     return this._tx( 'readonly', async objectStore => {
       const dbResults : DbValueType[] = await getAllPromise( objectStore );
