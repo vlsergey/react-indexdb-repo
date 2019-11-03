@@ -4,15 +4,6 @@ module.exports = {
   ...imported,
   rules: {
     ...imported.rules,
-    'import/no-unused-modules': [ 1, {
-      missingExports: true,
-      unusedExports: true,
-      src: [ './src/' ],
-      ignoreExports: [
-        '.*.js',
-        './*.js',
-        'src/index.js',
-      ],
-    } ],
+    'import/no-unused-modules': 0,
   },
 };

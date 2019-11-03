@@ -5,6 +5,8 @@ React Components to work with IndexDB repositories.
 [![Build Status](https://travis-ci.org/vlsergey/react-indexdb-repo.svg?branch=master)](https://travis-ci.org/vlsergey/react-indexdb-repo)
 
 # Usage example
+
+## Data access and update
 ```javascript
 async function dbConnection( ) {
   return new Promise( ( resolve, reject ) => {
@@ -36,7 +38,9 @@ console.log( ( await repo.findById( 1 ) ).name );
 ```
 
 # Main classes
-`IndexDbRepository` -- wrapper around IDBObjectStore. Supports:
+
+## 'IndexDbRepository` -- wrapper around IDBObjectStore.
+Supports:
 * `findAll()` -- returns all elements from IDBObjectStore
 * `findById( id )` -- returns element by key from IDBObjectStore.
 * `findByIds( ids )` -- returns an array of elements by keys from IDBObjectStore.
@@ -52,4 +56,20 @@ All `findId()` and `findIds()` calls are placed into single queue and optimized 
 * `stamp` -- indicates the sequence number of changes in IDBObjectStore. Can be used for memoization cache cleanup (I.e. pass it to memoize function as argument of memoization to reread data from IDBObjectStore on changes).
 
 # Misc Classes
-* `Batcher` -- organizes multiple calls to `findId()` and `findIds()` into single queue.
+
+## Batcher
+`Batcher` -- organizes multiple calls to `findId()` and `findIds()` into single queue.
+
+Shall not be used directly. Used by `IndexDbRepository` to queue all `findId()` and `findIds()` calls.
+
+## RepositoryListener.
+'RepositoryListener` calls `onChange()` whenever repository is changed.
+
+Usage:
+```javascript
+  <RepositoryListener repository={repository} onChange={ () => this.forceUpdate() }>
+    <!-- components that need to be rerendered when data in repository are changed -->
+  </RepositoryListener>
+```
+
+Shall not be used directly. Used by `connect()` function implementation to update wrapped component props.

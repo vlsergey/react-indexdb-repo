@@ -2,35 +2,21 @@
 
 import assert from 'assert';
 import IndexedDbRepository from 'IndexedDbRepository';
+import openIDBDatabase from './openIDBDatabase';
 
 const OBJECT_STORE_NAME : string = 'TestObjectStore';
 const DATABASE_NAME : string = 'TestDatabase';
 
-async function testDbConnection( ) {
-  return new Promise( ( resolve, reject ) => {
-    const dbOpenRequest = window.indexedDB.open( DATABASE_NAME, 1 );
-
-    dbOpenRequest.onblocked = () => reject( 'onblocked' );
-    dbOpenRequest.onerror = err => reject( err );
-    dbOpenRequest.onsuccess = () => resolve( dbOpenRequest.result );
-    dbOpenRequest.onupgradeneeded = event => {
-      try {
-        const db = event.target.result;
-        try { db.deleteObjectStore( OBJECT_STORE_NAME ); } catch ( err ) { /* NOOP */ }
-        const objectStore = db.createObjectStore( OBJECT_STORE_NAME, { keyPath: 'id' } );
-        objectStore.createIndex( 'name_index', 'name', {
-          multiEntry: true,
-          locale: 'auto', // Firefox-only (43+)
-        } );
-      } catch ( err ) {
-        reject( err );
-      }
-    };
-  } );
-}
-
 async function buildTestRepo() {
-  const db = await testDbConnection( );
+  const db = await openIDBDatabase( DATABASE_NAME, db => {
+    try { db.deleteObjectStore( OBJECT_STORE_NAME ); } catch ( err ) { /* NOOP */ }
+    const objectStore = db.createObjectStore( OBJECT_STORE_NAME, { keyPath: 'id' } );
+    objectStore.createIndex( 'name_index', 'name', {
+      multiEntry: true,
+      locale: 'auto', // Firefox-only (43+)
+    } );
+  } );
+
   const repo = new IndexedDbRepository( db, OBJECT_STORE_NAME, 'id' );
   await repo.saveAll( [
     { id: 1, name: 'First' },

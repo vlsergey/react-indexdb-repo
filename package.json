@@ -48,10 +48,14 @@
     "mocha": "^6.2.2",
     "prop-types": "^15.7.0",
     "react": "^16.11.0",
+    "react-dom": "^16.11.0",
     "regenerator-runtime": "^0.13.3",
     "webpack": "^4.41.2"
   },
   "dependencies": {
     "@vlsergey/react-promise": "^1.0.0"
+  },
+  "peerDependencies": {
+    "react": "^16.0.0"
   }
 }
