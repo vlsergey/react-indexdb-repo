@@ -2,8 +2,9 @@
   "name": "@vlsergey/react-indexdb-repo",
   "version": "0.5.0",
   "description": "React Components to work with IndexDB repositories",
-  "main": "src/index.js",
+  "main": "lib/index.js",
   "scripts": {
+    "build": "cross-env NODE_ENV=production babel -d lib src && flow-copy-source -v src lib",
     "flow:check": "flow check",
     "flow:status": "flow status",
     "eslint:check": "eslint --ignore-pattern \"!.eslintrc.js\" .eslintrc.js babel.config.js karma.conf.js src/**/*.js test/**/*.js",
@@ -11,7 +12,7 @@
     "test": "cross-env NODE_ENV=development cross-env BROWSERSLIST=\"current node\" karma start karma.conf.js --single-run",
     "test:watch": "cross-env NODE_ENV=development cross-env BROWSERSLIST=\"current node\" karma start karma.conf.js --no-single-run",
     "test:watch:chrome": "cross-env NODE_ENV=development cross-env BROWSERSLIST=\"last 2 Chrome versions\" karma start karma.conf.js --no-single-run --browsers Chrome",
-    "preversion": "npm run eslint:fix && npm run flow:check && npm run test",
+    "preversion": "npm run eslint:fix && npm run flow:check && npm run test && npm run build",
     "version": "npm publish --access=public",
     "postversion": "git push && git push --tags"
   },
@@ -37,6 +38,7 @@
     "core-js": "^3.3.6",
     "cross-env": "^6.0.3",
     "fake-indexeddb": "^2.1.1",
+    "flow-copy-source": "^2.0.8",
     "jsdom": "^15.2.0",
     "karma": "^4.4.1",
     "karma-chrome-launcher": "^3.1.0",
