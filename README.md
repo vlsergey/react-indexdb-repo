@@ -51,9 +51,9 @@ Supports:
 All `findId()` and `findIds()` calls are placed into single queue and optimized by using cursor over sorted ids.
 
 ## Properties and settings
-* `this.transformAfterIndexDb` -- method will be called after retrivieing element from IDBObjectStore and before returning it to user code. It's a good place for custom deserialization (`Date` handling, for example).
-* `this.transformBeforeIndexDb` -- method will be called before placing element in IDBObjectStore.  It\`s a good place for custom `object` => `string` serialization.
 * `stamp` -- indicates the sequence number of changes in IDBObjectStore. Can be used for memoization cache cleanup (I.e. pass it to memoize function as argument of memoization to reread data from IDBObjectStore on changes).
+* `transformAfterIndexDb` -- method will be called after retrivieing element from IDBObjectStore and before returning it to user code. It's a good place for custom deserialization (`Date` handling, for example).
+* `transformBeforeIndexDb` -- method will be called before placing element in IDBObjectStore.  It\`s a good place for custom `object` => `string` serialization.
 
 # Misc Classes
 
@@ -63,7 +63,7 @@ All `findId()` and `findIds()` calls are placed into single queue and optimized 
 Shall not be used directly. Used by `IndexDbRepository` to queue all `findId()` and `findIds()` calls.
 
 ## RepositoryListener.
-'RepositoryListener` calls `onChange()` whenever repository is changed.
+`RepositoryListener` calls `onChange()` whenever repository is changed.
 
 Usage:
 ```javascript
