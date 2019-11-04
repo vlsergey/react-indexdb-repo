@@ -2,7 +2,9 @@
 
 React Components to work with IndexDB repositories.
 
-[![Build Status](https://travis-ci.org/vlsergey/react-indexdb-repo.svg?branch=master)](https://travis-ci.org/vlsergey/react-indexdb-repo)
+[![NPM version][npm-image]][npm-url]
+[![Build Status][travis-image]][travis-url]
+[![Downloads][downloads-image]][downloads-url]
 
 # Usage example
 
@@ -109,3 +111,10 @@ Usage:
 ```
 
 Shall not be used directly. Used by `connect()` function implementation to update wrapped component props.
+
+[npm-image]: https://img.shields.io/npm/v/@vlsergey/react-indexdb-repo.svg?style=flat-square
+[npm-url]: https://npmjs.org/package/@vlsergey/react-indexdb-repo
+[travis-image]: https://travis-ci.org/vlsergey/react-indexdb-repo.svg?branch=master
+[travis-url]: https://travis-ci.org/vlsergey/react-indexdb-repo
+[downloads-image]: http://img.shields.io/npm/dm/@vlsergey/react-indexdb-repo.svg?style=flat-square
+[downloads-url]: https://npmjs.org/package/@vlsergey/react-indexdb-repo
