@@ -32,14 +32,14 @@
   },
   "homepage": "https://github.com/vlsergey/react-indexdb-repo#readme",
   "devDependencies": {
-    "@vlsergey/babel-config": "^0.1.0",
-    "@vlsergey/eslint-config": "^0.1.0",
+    "@vlsergey/babel-config": "^0.4.0",
+    "@vlsergey/eslint-config": "^0.3.0",
     "babel-loader": "^8.0.6",
-    "core-js": "^3.3.6",
+    "core-js": "^3.5.0",
     "cross-env": "^6.0.3",
-    "fake-indexeddb": "^2.1.1",
-    "flow-copy-source": "^2.0.8",
-    "jsdom": "^15.2.0",
+    "fake-indexeddb": "^3.0.0",
+    "flow-copy-source": "^2.0.9",
+    "jsdom": "^15.2.1",
     "karma": "^4.4.1",
     "karma-chrome-launcher": "^3.1.0",
     "karma-jsdom-launcher": "^8.0.0",
@@ -49,13 +49,13 @@
     "karma-webpack": "^4.0.2",
     "mocha": "^6.2.2",
     "prop-types": "^15.7.0",
-    "react": "^16.11.0",
-    "react-dom": "^16.11.0",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
     "regenerator-runtime": "^0.13.3",
     "webpack": "^4.41.2"
   },
   "dependencies": {
-    "@vlsergey/react-promise": "^2.0.1"
+    "@vlsergey/react-promise": "^2.3.0"
   },
   "peerDependencies": {
     "react": "^16.0.0"
