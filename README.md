@@ -64,7 +64,7 @@ All `findId()` and `findIds()` calls are placed into single queue and optimized 
 Usage:
 ```javascript
 import React, { PureComponent } from 'react';
-import connect from '@vlsergey/react-indexdb-repo';
+import { connect } from '@vlsergey/react-indexdb-repo';
 
 type PropsType = {
   element: any,
@@ -98,7 +98,7 @@ export default connect( mapPropsToRepo, extractMemoArgs, mapRepoToProps, mapRepo
 `connect()` can be used as annotation if you support them in your code.
 ```javascript
 import React, { PureComponent } from 'react';
-import connect from '@vlsergey/react-indexdb-repo';
+import { connect } from '@vlsergey/react-indexdb-repo';
 
 type PropsType = {
   element: any,
