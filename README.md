@@ -80,18 +80,50 @@ class ElementName extends PureComponent<PropsType> {
 }
 
 const mapPropsToRepo = ( props ) => /* some way to obtain IndexDbRepository */
-const mapRepoToProps = ( repo, props ) => ({
-  element: repo.findById( props.elementId ),
-})
-const mapRepoToActions = (repo, props) => ({
-  // can map repository to actions
-});
+const extractMemoArgs = ( { elementId } ) => ( { elementId } )
+const mapRepoToPropsPromise = ( repo, { elementId } ) => ( {
+  element: repo.findById( elementId ),
+} )
+const mapRepoToActions = ( repo, props ) => ( {
+  doSave: ( id, value ) => repo.save( { id, value } ),
+} );
 
-export default connect( mapPropsToRepo )( mapRepoToProps, mapRepoToActions )( ElementName );
+export default connect( mapPropsToRepo, extractMemoArgs, mapRepoToProps, mapRepoToActions )( ElementName );
 ```
 * `mapPropsToRepo` -- need to obtain `IndexDbRepository` from component `props`.
-* `mapRepoToProps` -- build data calculation `Promise`'s from given `IndexDbRepository` and component `props`. Promises calculation results will be passes to wrapped component `props`.
+* `extractMemoArgs` -- limit used props to simplify promise memoization. Promises will be recreated only if selected props changed (using shallow compare) OR data in repository changed.
+* `mapRepoToPropsPromise` -- build data calculation `Promise`'s from given `IndexDbRepository` and component `props`. Promises calculation results will be passes to wrapped component `props`.
 * `mapRepoToActions` -- build actions using `IndexDbRepository` and component `props`. Will be passes to wrapped component `props` directly.
+
+`connect()` can be used as annotation if you support them in your code.
+```javascript
+import React, { PureComponent } from 'react';
+import connect from '@vlsergey/react-indexdb-repo';
+
+type PropsType = {
+  element: any,
+}
+
+const mapPropsToRepo = ( props ) => /* some way to obtain IndexDbRepository */
+const extractMemoArgs = ( { elementId } ) => ( { elementId } )
+const mapRepoToPropsPromise = ( repo, { elementId } ) => ( {
+  element: repo.findById( elementId ),
+} )
+const mapRepoToActions = ( repo, props ) => ( {
+  doSave: ( id, value ) => repo.save( { id, value } ),
+} );
+
+export default
+@connect( mapPropsToRepo, extractMemoArgs, mapRepoToPropsPromise, mapRepoToActions )
+class ElementName extends PureComponent<PropsType> {
+  render() {
+    const { element } = this.props;
+    return !!element
+      ? <div>Loading...</div>
+      : <div>{element.name}</div>;
+  }
+}
+```
 
 # Misc Classes
 

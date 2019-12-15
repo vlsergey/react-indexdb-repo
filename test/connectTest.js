@@ -57,6 +57,7 @@ class TestComponent extends PureComponent<TestContainerPropsType> {
 let testSavePromise = null;
 
 const mapPropsToRepo = ( { repo } ) => repo;
+const extractMemoArgs = ( { id } ) => ( { id } );
 const mapRepoToProps = ( repo, { id } ) => ( {
   data: repo.findById( id ),
 } );
@@ -64,7 +65,7 @@ const mapRepoToActions = ( repo, { id } ) => ( {
   doUpdate: () => { testSavePromise = repo.save( { id, name: 'First Updated' } ); },
 } );
 
-const TestComponentConnected = connect( mapPropsToRepo )( mapRepoToProps, mapRepoToActions )( TestComponent );
+const TestComponentConnected = connect( mapPropsToRepo, extractMemoArgs, mapRepoToProps, mapRepoToActions )( TestComponent );
 
 describe( 'connect()', () => {
 

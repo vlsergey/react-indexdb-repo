@@ -55,7 +55,8 @@
     "webpack": "^4.41.2"
   },
   "dependencies": {
-    "@vlsergey/react-promise": "^2.3.0"
+    "@vlsergey/react-promise": "^2.3.0",
+    "memoize-one": "^5.1.1"
   },
   "peerDependencies": {
     "react": "^16.0.0"
