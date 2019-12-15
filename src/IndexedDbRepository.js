@@ -2,14 +2,23 @@
 
 import Batcher from './Batcher';
 
-type KeyType = number | string;
+type KeyType = any;
 type ExtValueType = any;
 type DbValueType = any;
 type Listener = number => any;
 type PredicateType = ExtValueType => boolean;
+type TxModeType = 'readonly' | 'readwrite';
+
+function toPromise<T>( request : IDBRequest ) : Promise< T > {
+  return new Promise< T >( ( resolve, reject ) => {
+    // $FlowFixMe
+    request.onsuccess = () => resolve( ( request.result : T ) );
+    request.onerror = reject;
+  } );
+}
 
 function withCursor( request : IDBRequest, callback : IDBCursorWithValue => any ) : Promise< void > {
-  return new Promise( ( resolve, reject ) => {
+  return new Promise< void >( ( resolve, reject ) => {
     request.onsuccess = event => {
       try {
         const cursor : ? IDBCursorWithValue = event.target.result;
@@ -27,21 +36,15 @@ function withCursor( request : IDBRequest, callback : IDBCursorWithValue => any 
   } );
 }
 
-// Оборачиваем функции от ObjectStore, поддерживающие интерфейс IDBRequest
-// в вызов с использованием Promise
-function wrap( methodName : string ) : any {
-  return function() {
-    const [ objectStore, ...etc ] = arguments;
-    return new Promise( ( resolve, reject ) => {
-      const request : IDBRequest = objectStore[ methodName ]( ...etc );
-      request.onsuccess = () => resolve( request.result );
-      request.onerror = reject;
-    } );
-  };
-}
-const deletePromise : ( IDBObjectStore, KeyType ) => Promise< any > = wrap( 'delete' );
-const getAllPromise : ( IDBObjectStore ) => Promise< DbValueType[] > = wrap( 'getAll' );
-const putPromise : ( IDBObjectStore, DbValueType ) => Promise< any > = wrap( 'put' );
+// Wrap IDB functions into Promises
+const deletePromise : ( IDBObjectStore, KeyType ) => Promise< void > =
+  ( objectStore : IDBObjectStore, key : KeyType ) => toPromise< void >( objectStore.delete( key ) );
+const getAllPromise : ( IDBObjectStore ) => Promise< DbValueType[] > =
+  // Yes, we do have getAll() in IDBObjectStore
+  // $FlowFixMe
+  ( objectStore : IDBObjectStore ) => toPromise< DbValueType[] >( objectStore.getAll() );
+const putPromise : ( IDBObjectStore, DbValueType ) => Promise< KeyType > =
+  ( objectStore : IDBObjectStore, value : DbValueType ) => toPromise< KeyType >( objectStore.put( value ) );
 
 export default class IndexedDbRepository {
 
@@ -51,6 +54,7 @@ export default class IndexedDbRepository {
   keyPath : string;
   listeners : Set< Listener >;
   objectStoreName : string;
+  // changes marker
   stamp : number;
   transformAfterIndexDb : DbValueType => ExtValueType;
   transformBeforeIndexDb : ExtValueType => DbValueType;
@@ -69,11 +73,11 @@ export default class IndexedDbRepository {
     this.findByIds = findByIdBatcher.queueAll.bind( findByIdBatcher );
   }
 
-  _tx( txMode : ( 'readonly' | 'readwrite' ), callback : ( IDBObjectStore => any ) ) : any {
+  _tx<T>( txMode : TxModeType, callback : ( IDBObjectStore => T ) ) : T {
     try {
       const transaction : IDBTransaction = this.database.transaction( [ this.objectStoreName ], txMode );
       const objectStore : IDBObjectStore = transaction.objectStore( this.objectStoreName );
-      const result = callback( objectStore );
+      const result : T = callback( objectStore );
       return result;
     } finally {
       // $FlowFixMe
@@ -95,7 +99,7 @@ export default class IndexedDbRepository {
     } );
   }
 
-  _findByIds( keys : KeyType[] ) : Promise< ExtValueType[] > {
+  _findByIds( keys : KeyType[] ) : Promise< ( ?ExtValueType )[] > {
     if ( keys.length === 0 ) return Promise.resolve( [] );
 
     const sorted = [ ...new Set( keys ) ];
@@ -106,7 +110,7 @@ export default class IndexedDbRepository {
     // $FlowFixMe
     const keyRange : IDBKeyRange = IDBKeyRange.bound( minKey, maxKey );
 
-    return this._tx( 'readonly', objectStore => new Promise( ( resolve, reject ) => {
+    return this._tx( 'readonly', objectStore => new Promise<( ?ExtValueType )[] >( ( resolve, reject ) => {
       const request : IDBRequest = objectStore.openCursor( keyRange, 'next' );
       const result : Map< KeyType, ExtValueType > = new Map();
 
@@ -161,8 +165,8 @@ export default class IndexedDbRepository {
     } );
   }
 
-  deleteById( key : KeyType ) : Promise< any > {
-    return this._tx( 'readwrite', objectStore => deletePromise( objectStore, key ) );
+  deleteById( key : KeyType ) : Promise< void > {
+    return this._tx< Promise< void > >( 'readwrite', objectStore => deletePromise( objectStore, key ) );
   }
 
   getKeyToIndexValueMap( indexName : string ) : Promise< Map< KeyType, any > > {
@@ -205,16 +209,17 @@ export default class IndexedDbRepository {
     } );
   }
 
-  save( item : ExtValueType ) : Promise< any > {
+  save( item : ExtValueType ) : Promise< KeyType > {
     return this._tx( 'readwrite', objectStore => putPromise( objectStore, item ) );
   }
 
-  saveAll( items : ExtValueType[] ) : Promise< any > {
-    return this._tx( 'readwrite', objectStore => {
-      const promises : Promise< any >[] = items
+  saveAll( items : ExtValueType[] ) : Promise< KeyType[] > {
+    return this._tx< Promise< KeyType[] > >( 'readwrite', objectStore => {
+      const promises : Promise< KeyType >[] = items
         .map( item => this.transformBeforeIndexDb( item ) )
         .map( item => putPromise( objectStore, item ) );
-      return Promise.all( promises );
+      const resultPromise : Promise< KeyType[] > = Promise.all< KeyType[] >( promises );
+      return resultPromise;
     } );
   }
 
