@@ -55,7 +55,7 @@
     "webpack": "^4.43.0"
   },
   "dependencies": {
-    "@vlsergey/batcher": "^0.2.0",
+    "@vlsergey/batcher": "^0.2.1",
     "@vlsergey/react-promise": "^2.4.0",
     "memoize-one": "^5.1.1"
   },

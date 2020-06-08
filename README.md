@@ -127,11 +127,6 @@ class ElementName extends PureComponent<PropsType> {
 
 # Misc Classes
 
-## Batcher
-`Batcher` -- organizes multiple calls to `findId()` and `findIds()` into single queue.
-
-Shall not be used directly. Used by `IndexDbRepository` to queue all `findId()` and `findIds()` calls.
-
 ## RepositoryListener.
 `RepositoryListener` calls `onChange()` whenever repository is changed.
 

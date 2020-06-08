@@ -1,6 +1,6 @@
 // @flow
 
-import Batcher from './Batcher';
+import Batcher from '@vlsergey/batcher';
 
 type KeyType = any;
 type ExtValueType = any;
@@ -68,9 +68,12 @@ export default class IndexedDbRepository {
     this.transformAfterIndexDb = x => ( ( x : any ) : ExtValueType );
     this.transformBeforeIndexDb = x => ( ( x : any ) : DbValueType );
 
-    const findByIdBatcher = new Batcher( this._findByIds.bind( this ) );
-    this.findById = findByIdBatcher.queue.bind( findByIdBatcher );
-    this.findByIds = findByIdBatcher.queueAll.bind( findByIdBatcher );
+    const findByIdBatcher = new Batcher( this._findByIds.bind( this ), {
+      flattenArguments: true
+    } );
+    this.findById = ( key : KeyType ) => findByIdBatcher.queue( key );
+    this.findByIds = ( keys : KeyType[] ) => findByIdBatcher
+      .queueAll( ...keys.map( key => [ key ] ) );
   }
 
   _tx<T>( txMode : TxModeType, callback : ( IDBObjectStore => T ) ) : T {
