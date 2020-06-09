@@ -141,7 +141,7 @@ Shall not be used directly. Used by `connect()` function implementation to updat
 
 [npm-image]: https://img.shields.io/npm/v/@vlsergey/react-indexdb-repo.svg?style=flat-square
 [npm-url]: https://npmjs.org/package/@vlsergey/react-indexdb-repo
-[travis-image]: https://travis-ci.org/vlsergey/react-indexdb-repo.svg?branch=master
-[travis-url]: https://travis-ci.org/vlsergey/react-indexdb-repo
+[travis-image]: https://travis-ci.com/vlsergey/react-indexdb-repo.svg?branch=master
+[travis-url]: https://travis-ci.com/vlsergey/react-indexdb-repo
 [downloads-image]: http://img.shields.io/npm/dm/@vlsergey/react-indexdb-repo.svg?style=flat-square
 [downloads-url]: https://npmjs.org/package/@vlsergey/react-indexdb-repo
