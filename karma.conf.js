@@ -1,62 +1,30 @@
 /* eslint-env node */
-const path = require( 'path' );
 
-module.exports = function( config ) {
-  config.set( {
-    browsers: [ 'jsdom' ],
-    frameworks: [ 'mocha' ],
+/* eslint @typescript-eslint/no-unsafe-assignment: 0 */
+/* eslint @typescript-eslint/no-unsafe-call: 0 */
+/* eslint @typescript-eslint/no-unsafe-member-access: 0 */
 
-    plugins: [
-      'karma-chrome-launcher',
-      'karma-jsdom-launcher',
-      'karma-mocha',
-      'karma-mocha-reporter',
-      'karma-sourcemap-loader',
-      'karma-webpack',
-    ],
+// eslint-disable-next-line
+const path = require('path');
 
+// eslint-disable-next-line
+const imported = require('./node_modules/@vlsergey/js-config/src/karma');
+
+module.exports = function (config) {
+  imported(config);
+
+  /* eslint-disable-next-line */
+  config.set({
     files: [
-      'test/globals.js',
-      'test/**/*Test.js',
+      'test/globals.ts',
+      'test/**/*Test.ts',
     ],
-
-    preprocessors: {
-      'src/**/*.js': [ 'webpack', 'sourcemap' ],
-      'test/**/*.js': [ 'webpack', 'sourcemap' ],
-    },
-
-    reporters: [
-      'mocha',
-    ],
-
-    mochaReporter: {
-      output: 'autowatch',
-    },
 
     webpack: {
-      mode: 'development',
-
-      entry: './src/index.js',
-
-      module: {
-        rules: [
-          {
-            test: /\.js$/,
-            loader: 'babel-loader',
-            options: {
-              cacheDirectory: true,
-            },
-          },
-        ],
+      ...config.webpack,
+      output: {
+        path: path.resolve(__dirname, './lib/'),
       },
-
-      resolve: {
-        modules: [
-          path.resolve( __dirname, 'test' ),
-          path.resolve( __dirname, 'src' ),
-          'node_modules',
-        ],
-      },
-    },
-  } );
+    }
+  });
 };

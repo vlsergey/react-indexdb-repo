@@ -1,0 +1,10 @@
+{
+  "extends": "../tsconfig.json",
+  "include": [".eslintrc.js","./**/*.ts*"],
+  "compilerOptions": {
+    "module": "CommonJS",
+    "outDir": "../lib/test",
+    "lib": ["dom", "es5", "es6", "es2021"],
+    "target": "es2021"
+  },
+}

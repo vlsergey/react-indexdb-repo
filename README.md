@@ -3,7 +3,7 @@
 React Components to work with IndexDB repositories.
 
 [![NPM version][npm-image]][npm-url]
-[![Build Status][travis-image]][travis-url]
+[![Build Status][ci-image]][ci-url]
 [![Downloads][downloads-image]][downloads-url]
 
 # Usage example
@@ -30,7 +30,7 @@ async function dbConnection( ) {
 }
 
 const db = await testDbConnection( );
-const repo = new IndexedDbRepository( db, 'TestObjectStore', 'id' );
+const repo = new IndexedDbRepositoryImpl( db, 'TestObjectStore', 'id' );
 await repo.saveAll( [
   { id: 1, name: 'First' },
   { id: 2, name: 'Second' },
@@ -41,8 +41,8 @@ console.log( ( await repo.findById( 1 ) ).name );
 
 # Main classes
 
-## IndexDbRepository
-`IndexDbRepository` -- wrapper around IDBObjectStore.
+## IndexedDbRepositoryImpl
+`IndexedDbRepositoryImpl` -- wrapper around IDBObjectStore.
 Supports:
 * `findAll()` -- returns all elements from IDBObjectStore
 * `findById( id )` -- returns element by key from IDBObjectStore.
@@ -58,8 +58,11 @@ All `findId()` and `findIds()` calls are placed into single queue and optimized 
 * `transformAfterIndexDb` -- method will be called after retrivieing element from IDBObjectStore and before returning it to user code. It's a good place for custom deserialization (`Date` handling, for example).
 * `transformBeforeIndexDb` -- method will be called before placing element in IDBObjectStore.  It\`s a good place for custom `object` => `string` serialization.
 
+## IndexedDbRepository
+An interface that `IndexedDbRepositoryImpl` implements. Useful for TypeScript applications because it has less type arguments (`IndexedDbRepositoryImpl` has 3, `IndexedDbRepository` only 2).
+
 ## connect()
-`connect` -- connects data from `IndexDbRepository` with component props. Automatically updates component props whenever `IndexDbRepository` is updated.
+`connect` -- connects data from `IndexedDbRepository` with component props. Automatically updates component props whenever `IndexedDbRepository` is updated.
 
 Usage:
 ```javascript
@@ -79,7 +82,7 @@ class ElementName extends PureComponent<PropsType> {
   }
 }
 
-const mapPropsToRepo = ( props ) => /* some way to obtain IndexDbRepository */
+const mapPropsToRepo = ( props ) => /* some way to obtain IndexedDbRepository */
 const extractMemoArgs = ( { elementId } ) => ( { elementId } )
 const mapRepoToPropsPromise = ( repo, { elementId } ) => ( {
   element: repo.findById( elementId ),
@@ -90,10 +93,10 @@ const mapRepoToActions = ( repo, props ) => ( {
 
 export default connect( mapPropsToRepo, extractMemoArgs, mapRepoToProps, mapRepoToActions )( ElementName );
 ```
-* `mapPropsToRepo` -- need to obtain `IndexDbRepository` from component `props`.
+* `mapPropsToRepo` -- need to obtain `IndexedDbRepository` from component `props`.
 * `extractMemoArgs` -- limit used props to simplify promise memoization. Promises will be recreated only if selected props changed (using shallow compare) OR data in repository changed.
-* `mapRepoToPropsPromise` -- build data calculation `Promise`'s from given `IndexDbRepository` and component `props`. Promises calculation results will be passes to wrapped component `props`.
-* `mapRepoToActions` -- build actions using `IndexDbRepository` and component `props`. Will be passes to wrapped component `props` directly.
+* `mapRepoToPropsPromise` -- build data calculation `Promise`'s from given `IndexedDbRepository` and component `props`. Promises calculation results will be passes to wrapped component `props`.
+* `mapRepoToActions` -- build actions using `IndexedDbRepository` and component `props`. Will be passes to wrapped component `props` directly.
 
 `connect()` can be used as annotation if you support them in your code.
 ```javascript
@@ -104,7 +107,7 @@ type PropsType = {
   element: any,
 }
 
-const mapPropsToRepo = ( props ) => /* some way to obtain IndexDbRepository */
+const mapPropsToRepo = ( props ) => /* some way to obtain IndexedDbRepository */
 const extractMemoArgs = ( { elementId } ) => ( { elementId } )
 const mapRepoToPropsPromise = ( repo, { elementId } ) => ( {
   element: repo.findById( elementId ),
@@ -141,7 +144,7 @@ Shall not be used directly. Used by `connect()` function implementation to updat
 
 [npm-image]: https://img.shields.io/npm/v/@vlsergey/react-indexdb-repo.svg?style=flat-square
 [npm-url]: https://npmjs.org/package/@vlsergey/react-indexdb-repo
-[travis-image]: https://travis-ci.com/vlsergey/react-indexdb-repo.svg?branch=master
-[travis-url]: https://travis-ci.com/vlsergey/react-indexdb-repo
+[ci-image]: https://github.com/vlsergey/react-indexdb-repo/actions/workflows/node.js.yml/badge.svg
+[ci-url]: https://github.com/vlsergey/react-indexdb-repo/actions/workflows/node.js.yml
 [downloads-image]: http://img.shields.io/npm/dm/@vlsergey/react-indexdb-repo.svg?style=flat-square
 [downloads-url]: https://npmjs.org/package/@vlsergey/react-indexdb-repo
