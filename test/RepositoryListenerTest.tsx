@@ -2,9 +2,7 @@ import {assert} from 'chai';
 import React, {PureComponent} from 'react';
 import ReactTestUtils from 'react-dom/test-utils';
 
-import IndexedDbRepository from '../src/IndexedDbRepository';
-import IndexedDbRepositoryImpl from '../src/IndexedDbRepositoryImpl';
-import RepositoryListener from '../src/RepositoryListener';
+import {IndexedDbRepository, IndexedDbRepositoryImpl, RepositoryListener} from '../src';
 import deleteDatabase from './deleteDatabase';
 import openDatabase from './openDatabase';
 

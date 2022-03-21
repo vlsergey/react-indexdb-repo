@@ -8,6 +8,7 @@
     "clean": "rimraf lib/*",
     "build": "cross-env NODE_ENV=production tsc -p ./src/tsconfig-cjs.json && cross-env NODE_ENV=production tsc -p ./src/tsconfig-esm.json",
     "build:watch": "cross-env NODE_ENV=development tsc -w --preserveWatchOutput -p ./src/tsconfig-esm.json",
+    "check": "npm run eslint:fix && npm run build && npm run test",
     "eslint:check": "eslint --ignore-pattern \"!.eslintrc.js\" .eslintrc.js karma.conf.js src/**/*.ts* test/**/*.ts*",
     "eslint:fix": "eslint --ignore-pattern \"!.eslintrc.js\" --fix .eslintrc.js karma.conf.js src/**/*.ts* test/**/*.ts*",
     "test": "cross-env NODE_ENV=development karma start karma.conf.js --single-run",

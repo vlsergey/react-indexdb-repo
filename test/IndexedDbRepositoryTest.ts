@@ -1,7 +1,6 @@
 import {assert} from 'chai';
 
-import IndexedDbRepository from '../src/IndexedDbRepository';
-import IndexedDbRepositoryImpl from '../src/IndexedDbRepositoryImpl';
+import {IndexedDbRepository, IndexedDbRepositoryImpl} from '../src';
 import deleteDatabase from './deleteDatabase';
 import openDatabase from './openDatabase';
 
