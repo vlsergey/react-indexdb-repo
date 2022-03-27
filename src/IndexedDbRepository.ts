@@ -12,6 +12,10 @@ interface IndexedDbRepository<KeyType extends IDBValidKey, ValueType> {
 
   close: () => void;
 
+  count: () => Promise<number>;
+
+  deleteAll: () => Promise<void>;
+
   findAll: () => Promise<ValueType[]>;
 
   findByPredicate: (predicate: Predicate<ValueType>) => Promise< ValueType[] >;

@@ -36,7 +36,9 @@ function withCursor (
 }
 
 // Wrap IDB functions into Promises
-const deletePromise = <KeyType extends IDBValidKey>(objectStore: IDBObjectStore, key: KeyType) => toPromise< void >(objectStore.delete(key));
+const clearPromise = (objectStore: IDBObjectStore) => toPromise<void>(objectStore.clear());
+const countPromise = (objectStore: IDBObjectStore, query?: IDBValidKey | IDBKeyRange) => toPromise<number>(objectStore.count(query));
+const deletePromise = <KeyType extends IDBValidKey>(objectStore: IDBObjectStore, key: KeyType) => toPromise<void>(objectStore.delete(key));
 const getAllPromise = <DbValueType>(objectStore: IDBObjectStore) => toPromise< DbValueType[] >(objectStore.getAll());
 const putPromise = <KeyType, DbValueType>(objectStore: IDBObjectStore, value: DbValueType) => toPromise< KeyType >(objectStore.put(value));
 
@@ -82,6 +84,8 @@ implements IndexedDbRepository<KeyType, ValueType> {
   };
 
   close = (): void => { this.database.close(); };
+
+  count = (): Promise<number> => this.inTx('readonly', objectStore => countPromise(objectStore));
 
   findAll = () => this.inTx('readonly', async objectStore => {
     const dbResults: DbValueType[] = await getAllPromise(objectStore);
@@ -150,6 +154,9 @@ implements IndexedDbRepository<KeyType, ValueType> {
       });
       return result;
     });
+
+  deleteAll = (): Promise<void> =>
+    this.inTx('readwrite', objectStore => clearPromise(objectStore));
 
   deleteById = (key: KeyType): Promise< void > =>
     this.inTx< Promise< void > >('readwrite', objectStore => deletePromise(objectStore, key));
