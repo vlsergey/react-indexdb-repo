@@ -34,9 +34,11 @@
   },
   "homepage": "https://github.com/vlsergey/react-indexdb-repo#readme",
   "devDependencies": {
-    "@vlsergey/js-config": "^10.1.0",
+    "@vlsergey/js-config": "^11.0.0",
     "chai": "^4.3.6",
-    "fake-indexeddb": "^3.1.7"
+    "fake-indexeddb": "^3.1.7",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
   },
   "dependencies": {
     "@vlsergey/batcher": "^1.0.0",
