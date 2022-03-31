@@ -3,9 +3,8 @@ import {putPromise} from './ObjectStorePromises';
 import OutOfLineKeyIndexedDbRepository from './OutOfLineKeyIndexedDbRepository';
 
 export default class OutOfLineKeyIndexedDbRepositoryImpl<
-  KeyPath extends string,
   KeyType extends IDBValidKey,
-  DbValueType extends {[K in KeyPath]: IDBValidKey},
+  DbValueType,
   ValueType
 > extends BaseIndexedDbRepository<KeyType, DbValueType, ValueType>
   implements OutOfLineKeyIndexedDbRepository<KeyType, ValueType> {
