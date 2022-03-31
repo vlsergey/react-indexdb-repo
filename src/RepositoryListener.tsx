@@ -1,20 +1,20 @@
 import {PureComponent, ReactNode} from 'react';
 
-import IndexedDbRepository from './IndexedDbRepository';
+import ListenableRepository from './ListenableRepository';
 
-interface PropsType<KeyType extends IDBValidKey, Value> {
+interface PropsType {
   children?: ReactNode;
   onChange: (stamp: number) => unknown;
-  repository: IndexedDbRepository<KeyType, Value>;
+  repository: ListenableRepository;
 }
 
-export default class RepositoryListener<KeyType extends IDBValidKey, Value>
-  extends PureComponent<PropsType<KeyType, Value>> {
+export default class RepositoryListener
+  extends PureComponent<PropsType> {
 
-  prevRepository: IndexedDbRepository<KeyType, Value> | null;
+  prevRepository: ListenableRepository | null;
   repositoryListener: (stamp: number) => unknown;
 
-  constructor (props: PropsType<KeyType, Value> | Readonly<PropsType<KeyType, Value>>) {
+  constructor (props: PropsType | Readonly<PropsType>) {
     super(props);
 
     this.prevRepository = null;

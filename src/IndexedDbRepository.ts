@@ -1,14 +1,14 @@
-type Listener = (stamp: number) => unknown;
+import ListenableRepository from './ListenableRepository';
+
 type Predicate<V> = (value: V) => boolean;
 
-interface IndexedDbRepository<KeyType extends IDBValidKey, ValueType> {
+export default interface IndexedDbRepository<Key extends IDBValidKey, Value>
+  extends ListenableRepository {
 
   readonly database: IDBDatabase;
-  readonly findById: (id: KeyType) => Promise< ValueType | undefined >;
-  readonly findByIds: (ids: KeyType[]) => Promise< (ValueType | undefined)[] >;
-  readonly keyPath: string;
+  readonly findById: (id: Key) => Promise< Value | undefined >;
+  readonly findByIds: (ids: Key[]) => Promise< (Value | undefined)[] >;
   readonly objectStoreName: string;
-  readonly stamp: number;
 
   close: () => void;
 
@@ -16,29 +16,21 @@ interface IndexedDbRepository<KeyType extends IDBValidKey, ValueType> {
 
   deleteAll: () => Promise<void>;
 
-  findAll: () => Promise<ValueType[]>;
+  findAll: () => Promise<Value[]>;
 
-  findByPredicate: (predicate: Predicate<ValueType>) => Promise< ValueType[] >;
+  findByPredicate: (predicate: Predicate<Value>) => Promise< Value[] >;
 
-  deleteById: (key: KeyType) => Promise< void >;
+  deleteById: (key: Key) => Promise< void >;
 
-  getKeyToIndexValueMap: (indexName: string) => Promise< Map< KeyType, IDBValidKey > >;
+  getKeyToIndexValueMap: (indexName: string) => Promise< Map< Key, IDBValidKey > >;
 
   /**
+   * Delete all records from object store that does NOT match specified predicate
+   *
    * @return Keys of removed elements
    */
-  retain: (idsToPreserve : (KeyType[] | Set< KeyType >)) => Promise< KeyType[] >;
-
-  save: (item: ValueType) => Promise<KeyType>;
-
-  saveAll: (items: ValueType[]) => Promise< KeyType[] >;
-
-  addListener: (listener: Listener) => unknown;
+  retain: (preservePredicate: Key[] | Set<Key> | ((key: Key, value: Value) => boolean)) => Promise< Key[] >;
 
   onChange: () => unknown;
 
-  removeListener: (listener: Listener) => unknown;
-
 }
-
-export default IndexedDbRepository;

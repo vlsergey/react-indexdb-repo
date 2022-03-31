@@ -1,14 +1,14 @@
 import {PromisesComponent} from '@vlsergey/react-promise';
 import React, {useCallback, useMemo, useState} from 'react';
 
-import IndexedDbRepository from './IndexedDbRepository';
+import ListenableRepository from './ListenableRepository';
 import RepositoryListener from './RepositoryListener';
 
 type ActionsObject<ChildProps> = {[Key in keyof ChildProps]: ChildProps[Key]};
 type PromisesObject<ChildProps> = {[Key in keyof ChildProps]: Promise<ChildProps[Key]>};
 
 interface PropsType<
-  Key extends IDBValidKey, Value,
+  Repo extends ListenableRepository,
   ChildProps,
   LimitedChildProps extends Partial<ChildProps>,
   ChildPropsFromPromises extends Partial<ChildProps>,
@@ -19,9 +19,9 @@ interface PropsType<
   childClass: React.ComponentClass<ChildProps>;
   childProps: ChildProps;
   extractMemoArgs?: (props: ChildProps) => LimitedChildProps;
-  mapPropsToRepo: (props: ChildProps) => IndexedDbRepository<Key, Value> | undefined;
-  mapRepoToActions?: (repo: IndexedDbRepository<Key, Value>, props: ChildProps) => Actions;
-  mapRepoToPropsPromise?: (repo: IndexedDbRepository<Key, Value>, props: ChildProps) => Promises;
+  mapPropsToRepo: (props: ChildProps) => Repo | undefined;
+  mapRepoToActions?: (repo: Repo, props: ChildProps) => Actions;
+  mapRepoToPropsPromise?: (repo: Repo, props: ChildProps) => Promises;
 }
 
 const EMPTY_OBJECT = Object.freeze({});
@@ -30,8 +30,7 @@ const EMPTY_OBJECT = Object.freeze({});
 Something alike redux connect() for retrieveing data from IndexedDbRepository.
 */
 const Connected = <
-  Key extends IDBValidKey,
-  Value,
+  Repo extends ListenableRepository,
   ChildProps,
   LimitedChildProps extends Partial<ChildProps>,
   ChildPropsFromPromises extends Partial<ChildProps>,
@@ -45,7 +44,7 @@ const Connected = <
     mapPropsToRepo,
     mapRepoToActions = () => EMPTY_OBJECT as Actions,
     mapRepoToPropsPromise = () => EMPTY_OBJECT as Promises,
-  }: PropsType<Key, Value, ChildProps, LimitedChildProps, ChildPropsFromPromises, Promises, ChildPropsFromActions, Actions>) => {
+  }: PropsType<Repo, ChildProps, LimitedChildProps, ChildPropsFromPromises, Promises, ChildPropsFromActions, Actions>) => {
   const [rerender, setRerender] = useState(false);
   const handleRepoChanged = useCallback(() => { setRerender(!rerender); }, [rerender, setRerender]);
 
@@ -73,14 +72,13 @@ const Connected = <
 
 /* Since all props are arguments connect() can be used as class annotation */
 export default function connect<
-  Key extends IDBValidKey,
-  Value,
+  Repo extends ListenableRepository,
   ChildProps
 > (
-    mapPropsToRepo: (props: ChildProps) => IndexedDbRepository<Key, Value> | undefined,
+    mapPropsToRepo: (props: ChildProps) => Repo | undefined,
     extractMemoArgs: (props: ChildProps) => Partial<ChildProps>,
-    mapRepoToPropsPromise: (repo: IndexedDbRepository<Key, Value>, ownProps: ChildProps) => PromisesObject<Partial<ChildProps>>,
-    mapRepoToActions: (repo: IndexedDbRepository<Key, Value>, ownProps: ChildProps) => ActionsObject<Partial<ChildProps>>
+    mapRepoToPropsPromise: (repo: Repo, ownProps: ChildProps) => PromisesObject<Partial<ChildProps>>,
+    mapRepoToActions: (repo: Repo, ownProps: ChildProps) => ActionsObject<Partial<ChildProps>>
 ) {
   // eslint-disable-next-line react/display-name
   return (childClass: React.ComponentClass<ChildProps>) => (props: ChildProps) => <Connected

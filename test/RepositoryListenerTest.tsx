@@ -2,7 +2,7 @@ import {assert} from 'chai';
 import React, {PureComponent} from 'react';
 import ReactTestUtils from 'react-dom/test-utils';
 
-import {IndexedDbRepository, IndexedDbRepositoryImpl, RepositoryListener} from '../src';
+import {InlineKeyIndexedDbRepository, InlineKeyIndexedDbRepositoryImpl, RepositoryListener} from '../src';
 import deleteDatabase from './deleteDatabase';
 import openDatabase from './openDatabase';
 
@@ -14,13 +14,13 @@ interface Value {
   name: string;
 }
 
-async function buildTestRepo (): Promise<IndexedDbRepository<number, Value>> {
+async function buildTestRepo (): Promise<InlineKeyIndexedDbRepository<number, Value>> {
   const db = await openDatabase(DATABASE_NAME, db => {
     try { db.deleteObjectStore(OBJECT_STORE_NAME); } catch (err) { /* NOOP */ }
     db.createObjectStore(OBJECT_STORE_NAME, {keyPath: 'id'});
   });
 
-  const repo = new IndexedDbRepositoryImpl<number, Value, Value>(db, OBJECT_STORE_NAME, 'id');
+  const repo = new InlineKeyIndexedDbRepositoryImpl<'id', number, Value, Value>(db, OBJECT_STORE_NAME);
   await repo.saveAll([
     {id: 1, name: 'First'},
     {id: 2, name: 'Second'},
@@ -30,7 +30,7 @@ async function buildTestRepo (): Promise<IndexedDbRepository<number, Value>> {
 }
 
 interface TestContainerPropsType {
-  repo: IndexedDbRepository<number, Value>;
+  repo: InlineKeyIndexedDbRepository<number, Value>;
 }
 
 class TestContainer extends PureComponent<TestContainerPropsType> {
@@ -47,7 +47,7 @@ class TestContainer extends PureComponent<TestContainerPropsType> {
 
 describe('RepositoryListener', () => {
 
-  let repo: IndexedDbRepository<number, Value>;
+  let repo: InlineKeyIndexedDbRepository<number, Value>;
   beforeEach(async () => {
     repo = await buildTestRepo();
   });

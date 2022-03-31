@@ -2,7 +2,7 @@ import {assert} from 'chai';
 import React, {PureComponent, ReactNode} from 'react';
 import ReactTestUtils from 'react-dom/test-utils';
 
-import {connect, IndexedDbRepository, IndexedDbRepositoryImpl} from '../src';
+import {connect, InlineKeyIndexedDbRepository, InlineKeyIndexedDbRepositoryImpl} from '../src';
 import deleteDatabase from './deleteDatabase';
 import openDatabase from './openDatabase';
 
@@ -14,16 +14,14 @@ interface Value {
   name: string;
 }
 
-async function buildTestRepo (): Promise<IndexedDbRepository<number, Value>> {
+async function buildTestRepo (): Promise<InlineKeyIndexedDbRepository<number, Value>> {
   const db = await openDatabase(DATABASE_NAME, db => {
     try { db.deleteObjectStore(OBJECT_STORE_NAME); } catch (err) { /* NOOP */ }
     db.createObjectStore(OBJECT_STORE_NAME, {keyPath: 'id'});
   });
 
-  const repo = new IndexedDbRepositoryImpl<number, Value, Value>(db, OBJECT_STORE_NAME, 'id');
-  await repo.saveAll([
-    {id: 1, name: 'First'},
-  ]);
+  const repo = new InlineKeyIndexedDbRepositoryImpl<'id', number, Value, Value>(db, OBJECT_STORE_NAME);
+  await repo.save({id: 1, name: 'First'});
   return repo;
 }
 
@@ -43,7 +41,7 @@ interface TestContainerPropsType {
   data?: {id: number; name: string} | null | undefined;
   doUpdate?: () => unknown;
   // eslint-disable-next-line react/no-unused-prop-types
-  repo: IndexedDbRepository<number, Value>;
+  repo: InlineKeyIndexedDbRepository<number, Value>;
 }
 
 class TestComponent extends PureComponent<TestContainerPropsType> {
@@ -62,10 +60,10 @@ let testSavePromise: Promise<unknown> | null = null;
 
 const mapPropsToRepo = ({repo}: TestContainerPropsType) => repo;
 const extractMemoArgs = ({id}: TestContainerPropsType) => ({id});
-const mapRepoToProps = (repo: IndexedDbRepository<number, Value>, {id}: TestContainerPropsType) => ({
+const mapRepoToProps = (repo: InlineKeyIndexedDbRepository<number, Value>, {id}: TestContainerPropsType) => ({
   data: repo.findById(id),
 });
-const mapRepoToActions = (repo: IndexedDbRepository<number, Value>, {id}: TestContainerPropsType) => ({
+const mapRepoToActions = (repo: InlineKeyIndexedDbRepository<number, Value>, {id}: TestContainerPropsType) => ({
   doUpdate: () => { testSavePromise = repo.save({id, name: 'First Updated'}); },
 });
 
@@ -73,7 +71,7 @@ const TestComponentConnected = connect(mapPropsToRepo, extractMemoArgs, mapRepoT
 
 describe('connect()', () => {
 
-  let repo: IndexedDbRepository<number, Value>;
+  let repo: InlineKeyIndexedDbRepository<number, Value>;
   beforeEach(async () => {
     repo = await buildTestRepo();
   });

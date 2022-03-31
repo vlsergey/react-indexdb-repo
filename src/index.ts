@@ -1,13 +1,19 @@
 import connect from './connect';
 import IndexedDbRepository from './IndexedDbRepository';
-import IndexedDbRepositoryImpl from './IndexedDbRepositoryImpl';
+import InlineKeyIndexedDbRepository from './InlineKeyIndexedDbRepository';
+import InlineKeyIndexedDbRepositoryImpl from './InlineKeyIndexedDbRepositoryImpl';
 import installFromPrefixes from './installFromPrefixes';
+import OutOfLineKeyIndexedDbRepository from './OutOfLineKeyIndexedDbRepository';
+import OutOfLineKeyIndexedDbRepositoryImpl from './OutOfLineKeyIndexedDbRepositoryImpl';
 import RepositoryListener from './RepositoryListener';
 
 export {
   connect,
   IndexedDbRepository,
-  IndexedDbRepositoryImpl,
+  InlineKeyIndexedDbRepository,
+  InlineKeyIndexedDbRepositoryImpl,
+  OutOfLineKeyIndexedDbRepository,
+  OutOfLineKeyIndexedDbRepositoryImpl,
   installFromPrefixes,
   RepositoryListener,
 };

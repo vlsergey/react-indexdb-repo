@@ -1,6 +1,6 @@
 import {assert} from 'chai';
 
-import {IndexedDbRepository, IndexedDbRepositoryImpl} from '../src';
+import {IndexedDbRepository, InlineKeyIndexedDbRepositoryImpl} from '../src';
 import deleteDatabase from './deleteDatabase';
 import openDatabase from './openDatabase';
 
@@ -23,7 +23,7 @@ async function buildTestRepo (): Promise<IndexedDbRepository<number, Value>> {
     });
   });
 
-  const repo = new IndexedDbRepositoryImpl<number, Value, Value>(db, OBJECT_STORE_NAME, 'id');
+  const repo = new InlineKeyIndexedDbRepositoryImpl<'id', number, Value, Value>(db, OBJECT_STORE_NAME);
   await repo.saveAll([
     {id: 1, name: 'First'},
     {id: 2, name: 'Second'},

@@ -30,7 +30,7 @@ async function dbConnection( ) {
 }
 
 const db = await testDbConnection( );
-const repo = new IndexedDbRepositoryImpl( db, 'TestObjectStore', 'id' );
+const repo = new InlineKeyIndexedDbRepositoryImpl( db, 'TestObjectStore' );
 await repo.saveAll( [
   { id: 1, name: 'First' },
   { id: 2, name: 'Second' },
@@ -41,15 +41,26 @@ console.log( ( await repo.findById( 1 ) ).name );
 
 # Main classes
 
-## IndexedDbRepositoryImpl
-`IndexedDbRepositoryImpl` -- wrapper around IDBObjectStore.
-Supports:
+There are two main interfaces and their implementations:
+
+* `InlineKeyIndexedDbRepositoryImpl` (`implemens InlineKeyIndexedDbRepository`) wraps `IDBObjectStore` and assumes that object store uses in-line keys (i.e. keys that are part of object, some field of it)
+* `OutOfLineKeyIndexedDbRepositoryImpl` (`implemens OutOfLineKeyIndexedDbRepository`) wraps `IDBObjectStore` and assumes that object store uses oput-of-line keys (i.e. keys are not part of the object)
+
+The only difference between classes / interface is in `save()` method. Inline key repository does not require additional argument to save object:
+* `save: (item: Value) => Promise<Key>`
+* `saveAll: (items: Value[]) => Promise< Key[] >`
+
+Out-of-line key repository requires additional key argument:
+* `save: (key: Key, item: Value) => Promise<Key>`
+
+Both of them implements the following common methods. Those methods are defined in common `IndexedDbRepository` interface and `BaseIndexedDbRepository` abstract class.
+
 * `findAll()` -- returns all elements from IDBObjectStore
 * `findById( id )` -- returns element by key from IDBObjectStore.
 * `findByIds( ids )` -- returns an array of elements by keys from IDBObjectStore.
 * `findByPredicate( predicate )` -- returns an array of elements filtered by predicate. Semantically the same as, but with memory usage optimization compared to `findAll( ).filter( predicate )`.
 * `getKeyToIndexValueMap( indexName )` -- returns a map where key is primary key and value is index value. Used by sorting functions (where one need to sort items by label of linked dictionary entry).
-* `retain( ids )` -- deletes all elements from IDBObjectStore except with keys specified in argument.
+* `retain( ids )` -- deletes all elements from IDBObjectStore except with keys specified in argument (can be array, set or predicate function).
 
 All `findId()` and `findIds()` calls are placed into single queue and optimized by using cursor over sorted ids.
 
@@ -57,9 +68,6 @@ All `findId()` and `findIds()` calls are placed into single queue and optimized 
 * `stamp` -- indicates the sequence number of changes in IDBObjectStore. Can be used for memoization cache cleanup (I.e. pass it to memoize function as argument of memoization to reread data from IDBObjectStore on changes).
 * `transformAfterIndexDb` -- method will be called after retrivieing element from IDBObjectStore and before returning it to user code. It's a good place for custom deserialization (`Date` handling, for example).
 * `transformBeforeIndexDb` -- method will be called before placing element in IDBObjectStore.  It\`s a good place for custom `object` => `string` serialization.
-
-## IndexedDbRepository
-An interface that `IndexedDbRepositoryImpl` implements. Useful for TypeScript applications because it has less type arguments (`IndexedDbRepositoryImpl` has 3, `IndexedDbRepository` only 2).
 
 ## connect()
 `connect` -- connects data from `IndexedDbRepository` with component props. Automatically updates component props whenever `IndexedDbRepository` is updated.
